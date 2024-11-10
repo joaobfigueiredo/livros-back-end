@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import br.com.joaofigueiredo.livros.model.Autor;
 import br.com.joaofigueiredo.livros.repository.AutorRepository;
+import br.com.joaofigueiredo.livros.service.AutorService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 
@@ -28,6 +29,9 @@ public class AutorController {
 
     @Autowired
     private AutorRepository autorRepository;
+    @Autowired
+    private AutorService autorService;
+    
 
     @GetMapping
     public List<Autor> listarAutores() {
@@ -63,7 +67,6 @@ public class AutorController {
         }
     }
 
-    // Excluir um autor
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> excluirAutor(@PathVariable UUID id) {
         if (autorRepository.existsById(id)) {
@@ -73,5 +76,11 @@ public class AutorController {
             return ResponseEntity.notFound().build();
         }
     }
+    
+    @GetMapping("/livro/{idLivro}")
+    public ResponseEntity<List<Autor>> buscarAutoresPorLivro(@PathVariable UUID idLivro) {
+        List<Autor> autores = autorService.buscarAutoresPorLivro(idLivro);
+        return ResponseEntity.ok(autores);
+    }    
 }
 
