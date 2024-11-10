@@ -3,6 +3,8 @@ package br.com.joaofigueiredo.livros.model;
 import java.util.Set;
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
@@ -25,6 +27,7 @@ public class Editora {
     private String website;
 
     @OneToMany(mappedBy = "editora")
+    @JsonIgnoreProperties("editora")
     private Set<Livro> livros;
 
 }

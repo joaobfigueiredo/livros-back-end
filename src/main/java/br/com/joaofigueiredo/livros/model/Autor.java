@@ -1,14 +1,16 @@
 package br.com.joaofigueiredo.livros.model;
 
+import java.util.Set;
+import java.util.UUID;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 import lombok.Data;
-
-import java.util.UUID;
-import java.util.Set;
 
 @Entity
 @Table(name = "autores")
@@ -24,6 +26,7 @@ public class Autor {
     private String nacionalidade;
 
     @ManyToMany(mappedBy = "autores")
+    @JsonIgnoreProperties("autores")
     private Set<Livro> livros;
 
 
