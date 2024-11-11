@@ -1,3 +1,6 @@
+CREATE SCHEMA `db_livros`;
+
+
 CREATE TABLE Autores (
     id_autor BINARY(16) PRIMARY KEY DEFAULT (UUID()),
     nome VARCHAR(255) NOT NULL,
