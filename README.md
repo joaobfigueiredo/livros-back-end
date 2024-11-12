@@ -1,6 +1,7 @@
 # LivrosBackend
 
 Este projeto foi gerado com [Spring initializr](https://start.spring.io/).
+Observação: para executar o projeto, é necessário ter o Java na versão 17 instalado na máquina.
 
 ## Baixar código e instalar dependencias
 
