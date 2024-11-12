@@ -3,8 +3,6 @@ package br.com.joaofigueiredo.livros.model;
 import java.util.Set;
 import java.util.UUID;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
@@ -13,11 +11,13 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
 @Table(name = "livros")
-@Data
+@Getter
+@Setter
 public class Livro {
 
     @Id
@@ -39,6 +39,6 @@ public class Livro {
         inverseJoinColumns = @JoinColumn(name = "id_autor")
     )
     private Set<Autor> autores;
-
+    
 
 }

@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.joaofigueiredo.livros.model.Autor;
-import br.com.joaofigueiredo.livros.repository.AutorRepository;
 import br.com.joaofigueiredo.livros.service.AutorService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -28,49 +27,38 @@ import io.swagger.v3.oas.annotations.Parameter;
 public class AutorController {
 
     @Autowired
-    private AutorRepository autorRepository;
-    @Autowired
     private AutorService autorService;
     
-
     @GetMapping
     public List<Autor> listarAutores() {
-        return autorRepository.findAll();
+        return autorService.listarAutores();
     }
 
     @Operation(summary = "Busca um autor pelo ID", description = "Retorna um autor específico com base no ID fornecido.")
     @GetMapping("/{id}")
     public ResponseEntity<Autor> obterAutor(@Parameter(description = "ID do autor") @PathVariable UUID id) {
-        Optional<Autor> autor = autorRepository.findById(id);
+        Optional<Autor> autor = autorService.obterAutor(id);
         return autor.map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+                    .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PostMapping
     public ResponseEntity<Autor> criarAutor(@RequestBody Autor autor) {
-        Autor novoAutor = autorRepository.save(autor);
+        Autor novoAutor = autorService.criarAutor(autor);
         return ResponseEntity.status(HttpStatus.CREATED).body(novoAutor);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Autor> atualizarAutor(@PathVariable UUID id, @RequestBody Autor detalhesAutor) {
-        Optional<Autor> autorExistente = autorRepository.findById(id);
-        if (autorExistente.isPresent()) {
-            Autor autor = autorExistente.get();
-            autor.setNome(detalhesAutor.getNome());
-            autor.setBiografia(detalhesAutor.getBiografia());
-            autor.setNacionalidade(detalhesAutor.getNacionalidade());
-            Autor autorAtualizado = autorRepository.save(autor);
-            return ResponseEntity.ok(autorAtualizado);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+        Optional<Autor> autorAtualizado = autorService.atualizarAutor(id, detalhesAutor);
+        return autorAtualizado.map(ResponseEntity::ok)
+                              .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> excluirAutor(@PathVariable UUID id) {
-        if (autorRepository.existsById(id)) {
-            autorRepository.deleteById(id);
+        boolean excluido = autorService.excluirAutor(id);
+        if (excluido) {
             return ResponseEntity.noContent().build();
         } else {
             return ResponseEntity.notFound().build();

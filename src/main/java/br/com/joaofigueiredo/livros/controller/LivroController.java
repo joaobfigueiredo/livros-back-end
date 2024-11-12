@@ -1,11 +1,9 @@
 package br.com.joaofigueiredo.livros.controller;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,56 +18,40 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import br.com.joaofigueiredo.livros.model.Autor;
-import br.com.joaofigueiredo.livros.model.Editora;
 import br.com.joaofigueiredo.livros.model.Livro;
-import br.com.joaofigueiredo.livros.repository.EditoraRepository;
 import br.com.joaofigueiredo.livros.repository.LivroRepository;
-import br.com.joaofigueiredo.livros.service.AutorService;
+import br.com.joaofigueiredo.livros.service.LivroService;
 
 @CrossOrigin(origins = "http://localhost:4200")
 @RestController
 @RequestMapping("/api/livros")
 public class LivroController {
 
+    @Autowired
+    private LivroService livroService;
+    
 	@Autowired
 	private LivroRepository livroRepository;
 
-	@Autowired
-	private EditoraRepository editoraRepository;
+    @GetMapping
+    public ResponseEntity<List<Livro>> listarLivros() {
+        List<Livro> livros = livroService.listarLivros();
+        return ResponseEntity.ok(livros);
+    }
 
-	@Autowired
-	private AutorService autorService;
+    @GetMapping("/{id}")
+    public ResponseEntity<Livro> obterLivro(@PathVariable UUID id) {
+        Optional<Livro> livro = livroService.obterLivro(id);
+        return livro.map(ResponseEntity::ok)
+                    .orElseGet(() -> ResponseEntity.notFound().build());
+    }
 
-	@GetMapping
-	public List<Livro> listarLivros() {
-		List<Livro> retorno = livroRepository.findAll().stream().peek(livro -> {
-			Set<Autor> autores = new HashSet<>(autorService.buscarAutoresPorLivro(livro.getIdLivro()));
-			livro.setAutores(autores); 
-		}).collect(Collectors.toList());
-		
-		
-		return retorno;
-	}
-
-	@GetMapping("/{id}")
-	public ResponseEntity<Livro> obterLivro(@PathVariable UUID id) {
-		Optional<Livro> livro = livroRepository.findById(id);
-	    if (livro.isPresent()) {
-	        Set<Autor> autores = new HashSet<>(autorService.buscarAutoresPorLivro(id));
-	        livro.get().setAutores(autores); 
-	        return ResponseEntity.ok(livro.get());
-	    } else {
-	        return ResponseEntity.notFound().build();
-	    }
-	}
-
-	@PostMapping
-	public ResponseEntity<Livro> criarLivro(@RequestBody Livro livro) {
-		Livro novoLivro = livroRepository.save(livro);
-		return ResponseEntity.status(HttpStatus.CREATED).body(novoLivro);
-	}
-
+    @PostMapping
+    public ResponseEntity<Livro> criarLivro(@RequestBody Livro livro) {
+        Livro novoLivro = livroService.criarLivro(livro);
+        return ResponseEntity.status(HttpStatus.CREATED).body(novoLivro);
+    }
+    
 	@PutMapping("/{id}")
 	public ResponseEntity<Livro> atualizarLivro(@PathVariable UUID id, @RequestBody Livro detalhesLivro) {
 		Optional<Livro> livroExistente = livroRepository.findById(id);
@@ -87,43 +69,30 @@ public class LivroController {
 		}
 	}
 
-	@DeleteMapping("/{id}")
-	public ResponseEntity<Void> excluirLivro(@PathVariable UUID id) {
-		if (livroRepository.existsById(id)) {
-			livroRepository.deleteById(id);
-			return ResponseEntity.noContent().build();
-		} else {
-			return ResponseEntity.notFound().build();
-		}
-	}
+    //@PutMapping("/{id}")
+    public ResponseEntity<Livro> atualizarLivro_(@PathVariable UUID id, @RequestBody Livro detalhesLivro) {
+        Optional<Livro> livroAtualizado = livroService.atualizarLivro(id, detalhesLivro);
+        return livroAtualizado.map(ResponseEntity::ok)
+                              .orElseGet(() -> ResponseEntity.notFound().build());
+    }
 
-	@PutMapping("/{id}/editora/{idEditora}")
-	public ResponseEntity<Livro> associarEditora(@PathVariable UUID id, @PathVariable UUID idEditora) {
-		Optional<Livro> livroOptional = livroRepository.findById(id);
-		Optional<Editora> editoraOptional = editoraRepository.findById(idEditora);
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> excluirLivro(@PathVariable UUID id) {
+        boolean excluido = livroService.excluirLivro(id);
+        return excluido ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
+    }
 
-		if (livroOptional.isPresent() && editoraOptional.isPresent()) {
-			Livro livro = livroOptional.get();
-			livro.setEditora(editoraOptional.get());
-			livroRepository.save(livro);
-			return ResponseEntity.ok(livro);
-		} else {
-			return ResponseEntity.notFound().build();
-		}
-	}
+    @PutMapping("/{id}/editora/{idEditora}")
+    public ResponseEntity<Livro> associarEditora(@PathVariable UUID id, @PathVariable UUID idEditora) {
+        Optional<Livro> livroAtualizado = livroService.associarEditora(id, idEditora);
+        return livroAtualizado.map(ResponseEntity::ok)
+                              .orElseGet(() -> ResponseEntity.notFound().build());
+    }
 
-	@PutMapping("/{id}/autores")
-	public ResponseEntity<Livro> associarAutores(@PathVariable UUID id, @RequestBody Set<UUID> idsAutores) {
-		Optional<Livro> livroOptional = livroRepository.findById(id);
-
-		if (livroOptional.isPresent()) {
-			Livro livro = livroOptional.get();
-			Set<Autor> autores = autorService.findAllById(idsAutores).stream().collect(Collectors.toSet());
-			livro.setAutores(autores);
-			livroRepository.save(livro);
-			return ResponseEntity.ok(livro);
-		} else {
-			return ResponseEntity.notFound().build();
-		}
-	}
+    @PutMapping("/{id}/autores")
+    public ResponseEntity<Livro> associarAutores(@PathVariable UUID id, @RequestBody Set<UUID> idsAutores) {
+        Optional<Livro> livroAtualizado = livroService.associarAutores(id, idsAutores);
+        return livroAtualizado.map(ResponseEntity::ok)
+                              .orElseGet(() -> ResponseEntity.notFound().build());
+    }
 }

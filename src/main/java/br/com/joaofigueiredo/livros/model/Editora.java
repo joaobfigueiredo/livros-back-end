@@ -10,11 +10,13 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
 @Table(name = "editoras")
-@Data
+@Getter
+@Setter
 public class Editora {
 
     @Id
@@ -29,5 +31,6 @@ public class Editora {
     @OneToMany(mappedBy = "editora")
     @JsonIgnoreProperties("editora")
     private Set<Livro> livros;
+    
 
 }
