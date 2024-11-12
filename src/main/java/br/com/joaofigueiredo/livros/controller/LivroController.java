@@ -61,7 +61,7 @@ public class LivroController {
 			livro.setAnoPublicacao(detalhesLivro.getAnoPublicacao());
 			livro.setGenero(detalhesLivro.getGenero());
 			livro.setEditora(detalhesLivro.getEditora());
-			livro.setAutores(detalhesLivro.getAutores());
+			livro.setAutor(detalhesLivro.getAutor());
 			Livro livroAtualizado = livroRepository.save(livro);
 			return ResponseEntity.ok(livroAtualizado);
 		} else {
@@ -90,8 +90,8 @@ public class LivroController {
     }
 
     @PutMapping("/{id}/autores")
-    public ResponseEntity<Livro> associarAutores(@PathVariable UUID id, @RequestBody Set<UUID> idsAutores) {
-        Optional<Livro> livroAtualizado = livroService.associarAutores(id, idsAutores);
+    public ResponseEntity<Livro> associarAutores(@PathVariable UUID id, @RequestBody UUID idsAutor) {
+        Optional<Livro> livroAtualizado = livroService.associarAutor(id, idsAutor);
         return livroAtualizado.map(ResponseEntity::ok)
                               .orElseGet(() -> ResponseEntity.notFound().build());
     }

@@ -32,13 +32,7 @@ public class LivroService {
 	}
 
 	public List<Livro> listarLivros() {
-		List<Livro> retorno = livroRepository.findAll().stream().peek(livro -> {
-			Set<Autor> autores = new HashSet<>(autorService.buscarAutoresPorLivro(livro.getIdLivro()));
-			livro.setAutores(autores); 
-		}).collect(Collectors.toList());
-		
-		
-		return retorno;
+		return livroRepository.findAll();
 	}
     public Optional<Livro> obterLivro(UUID id) {
         return livroRepository.findById(id);
@@ -56,7 +50,7 @@ public class LivroService {
 			livro.setAnoPublicacao(detalhesLivro.getAnoPublicacao());
 			livro.setGenero(detalhesLivro.getGenero());
 			livro.setEditora(detalhesLivro.getEditora());
-			livro.setAutores(detalhesLivro.getAutores());
+			livro.setAutor(detalhesLivro.getAutor());
 			return Optional.of(livroRepository.save(livro));
 		} else {
 			return Optional.empty();
@@ -83,12 +77,16 @@ public class LivroService {
         return Optional.empty();
     }
 
-    public Optional<Livro> associarAutores(UUID id, Set<UUID> idsAutores) {
-        return livroRepository.findById(id).map(livro -> {
-            Set<Autor> autores = autorService.findAllById(idsAutores).stream().collect(Collectors.toSet());
-            livro.setAutores(autores);
-            return livroRepository.save(livro);
-        });
+    public Optional<Livro> associarAutor(UUID id, UUID idsAutor) {
+        Optional<Livro> livroOptional = livroRepository.findById(id);
+        Optional<Autor> autorOptional = autorService.obterAutor(idsAutor);
+
+        if (livroOptional.isPresent() && autorOptional.isPresent()) {
+            Livro livro = livroOptional.get();
+            livro.setAutor(autorOptional.get());
+            return Optional.of(livroRepository.save(livro));
+        }
+        return Optional.empty();
     }    
 
 }

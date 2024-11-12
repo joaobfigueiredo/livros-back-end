@@ -2,7 +2,6 @@ package br.com.joaofigueiredo.livros.service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,10 +18,6 @@ public class AutorService {
 
 	public List<Autor> buscarAutoresPorLivro(UUID idLivro) {
 		return autorRepository.findByLivros_IdLivro(idLivro);
-	}
-
-	public List<Autor> findAllById(Set<UUID> idsAutores) {
-		return autorRepository.findAllById(idsAutores);
 	}
 
 	public List<Autor> listarAutores() {
