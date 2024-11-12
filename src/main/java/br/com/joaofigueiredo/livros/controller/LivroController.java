@@ -38,26 +38,15 @@ public class LivroController {
 	@Autowired
 	private EditoraRepository editoraRepository;
 
-	@Autowired
-	private AutorService autorService;
-
 	@GetMapping
 	public List<Livro> listarLivros() {
-		List<Livro> retorno = livroRepository.findAll().stream().peek(livro -> {
-			Set<Autor> autores = new HashSet<>(autorService.buscarAutoresPorLivro(livro.getIdLivro()));
-			livro.setAutores(autores); 
-		}).collect(Collectors.toList());
-		
-		
-		return retorno;
+		return livroRepository.findAll();
 	}
 
 	@GetMapping("/{id}")
 	public ResponseEntity<Livro> obterLivro(@PathVariable UUID id) {
 		Optional<Livro> livro = livroRepository.findById(id);
 	    if (livro.isPresent()) {
-	        Set<Autor> autores = new HashSet<>(autorService.buscarAutoresPorLivro(id));
-	        livro.get().setAutores(autores); 
 	        return ResponseEntity.ok(livro.get());
 	    } else {
 	        return ResponseEntity.notFound().build();
@@ -79,7 +68,7 @@ public class LivroController {
 			livro.setAnoPublicacao(detalhesLivro.getAnoPublicacao());
 			livro.setGenero(detalhesLivro.getGenero());
 			livro.setEditora(detalhesLivro.getEditora());
-			livro.setAutores(detalhesLivro.getAutores());
+			livro.setAutor(detalhesLivro.getAutor());
 			Livro livroAtualizado = livroRepository.save(livro);
 			return ResponseEntity.ok(livroAtualizado);
 		} else {
@@ -112,18 +101,4 @@ public class LivroController {
 		}
 	}
 
-	@PutMapping("/{id}/autores")
-	public ResponseEntity<Livro> associarAutores(@PathVariable UUID id, @RequestBody Set<UUID> idsAutores) {
-		Optional<Livro> livroOptional = livroRepository.findById(id);
-
-		if (livroOptional.isPresent()) {
-			Livro livro = livroOptional.get();
-			Set<Autor> autores = autorService.findAllById(idsAutores).stream().collect(Collectors.toSet());
-			livro.setAutores(autores);
-			livroRepository.save(livro);
-			return ResponseEntity.ok(livro);
-		} else {
-			return ResponseEntity.notFound().build();
-		}
-	}
 }
