@@ -25,8 +25,8 @@ public class Autor {
     private String biografia;
     private String nacionalidade;
 
-    @ManyToMany(mappedBy = "autores")
-    @JsonIgnoreProperties("autores")
+    @ManyToMany(mappedBy = "autor")
+    @JsonIgnoreProperties("autor")
     private Set<Livro> livros;
 
 

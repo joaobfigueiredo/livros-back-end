@@ -1,16 +1,11 @@
 package br.com.joaofigueiredo.livros.model;
 
-import java.util.Set;
 import java.util.UUID;
-
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Data;
@@ -32,13 +27,9 @@ public class Livro {
     @JoinColumn(name = "id_editora")
     private Editora editora;
 
-    @ManyToMany
-    @JoinTable(
-        name = "livro_Autores",
-        joinColumns = @JoinColumn(name = "id_livro"),
-        inverseJoinColumns = @JoinColumn(name = "id_autor")
-    )
-    private Set<Autor> autores;
+    @ManyToOne
+    @JoinColumn(name = "id_autor")
+    private Autor autor;
 
 
 }
