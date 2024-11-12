@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import br.com.joaofigueiredo.livros.dto.AutorDTO;
 import br.com.joaofigueiredo.livros.model.Autor;
 import br.com.joaofigueiredo.livros.repository.AutorRepository;
 import br.com.joaofigueiredo.livros.service.AutorService;
@@ -40,8 +41,8 @@ public class AutorController {
 
 	@Operation(summary = "Busca um autor pelo ID", description = "Retorna um autor específico com base no ID fornecido.")
 	@GetMapping("/{id}")
-	public ResponseEntity<Autor> obterAutor(@Parameter(description = "ID do autor") @PathVariable UUID id) {
-		Optional<Autor> autor = autorService.obterAutor(id);
+	public ResponseEntity<AutorDTO> obterAutor(@Parameter(description = "ID do autor") @PathVariable UUID id) {
+		Optional<AutorDTO> autor = autorService.obterAutor(id);
 		return autor.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
 	}
 

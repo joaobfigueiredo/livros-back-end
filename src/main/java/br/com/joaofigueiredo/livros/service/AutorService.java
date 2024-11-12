@@ -7,6 +7,7 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import br.com.joaofigueiredo.livros.dto.AutorDTO;
 import br.com.joaofigueiredo.livros.model.Autor;
 import br.com.joaofigueiredo.livros.repository.AutorRepository;
 
@@ -24,8 +25,14 @@ public class AutorService {
 		return autorRepository.findAll();
 	}
 
-	public Optional<Autor> obterAutor(UUID id) {
-		return autorRepository.findById(id);
+	public Optional<AutorDTO> obterAutor(UUID id) {
+		Optional<Autor> autor = autorRepository.findById(id);
+		if(autor.isEmpty()) {
+			return Optional.empty();
+		} else {
+			Autor entidade = autor.get();
+			return Optional.of(new AutorDTO(entidade.getIdAutor(), entidade.getNome(), entidade.getBiografia(), entidade.getNacionalidade()));
+		}
 	}
 
 	public Autor criarAutor(Autor autor) {

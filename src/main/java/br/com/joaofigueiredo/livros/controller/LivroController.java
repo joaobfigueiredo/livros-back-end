@@ -17,10 +17,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import br.com.joaofigueiredo.livros.model.Editora;
 import br.com.joaofigueiredo.livros.model.Livro;
-import br.com.joaofigueiredo.livros.repository.EditoraRepository;
-import br.com.joaofigueiredo.livros.repository.LivroRepository;
 import br.com.joaofigueiredo.livros.service.LivroService;
 
 @CrossOrigin(origins = "http://localhost:4200")
@@ -62,17 +59,4 @@ public class LivroController {
         return excluido ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
     }
 
-    @PutMapping("/{id}/editora/{idEditora}")
-    public ResponseEntity<Livro> associarEditora(@PathVariable UUID id, @PathVariable UUID idEditora) {
-        Optional<Livro> livroAtualizado = livroService.associarEditora(id, idEditora);
-        return livroAtualizado.map(ResponseEntity::ok)
-                              .orElseGet(() -> ResponseEntity.notFound().build());
-    }
-
-    @PutMapping("/{id}/autores")
-    public ResponseEntity<Livro> associarAutores(@PathVariable UUID id, @RequestBody UUID idsAutor) {
-        Optional<Livro> livroAtualizado = livroService.associarAutor(id, idsAutor);
-        return livroAtualizado.map(ResponseEntity::ok)
-                              .orElseGet(() -> ResponseEntity.notFound().build());
-    }
 }

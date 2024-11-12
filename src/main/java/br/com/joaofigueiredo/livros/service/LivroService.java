@@ -7,8 +7,6 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import br.com.joaofigueiredo.livros.model.Autor;
-import br.com.joaofigueiredo.livros.model.Editora;
 import br.com.joaofigueiredo.livros.model.Livro;
 import br.com.joaofigueiredo.livros.repository.LivroRepository;
 
@@ -17,12 +15,6 @@ public class LivroService {
 	
 	@Autowired
 	private LivroRepository livroRepository;
-	
-	@Autowired
-	private EditoraService editoraService;
-	
-	@Autowired
-	private AutorService autorService;
 	
 	public List<Livro> listarLivros() {
 		return livroRepository.findAll();
@@ -58,28 +50,5 @@ public class LivroService {
         }
         return false;
     }	
-    
-    public Optional<Livro> associarEditora(UUID id, UUID idEditora) {
-        Optional<Livro> livroOptional = livroRepository.findById(id);
-        Optional<Editora> editoraOptional = editoraService.obterEditora(idEditora);
 
-        if (livroOptional.isPresent() && editoraOptional.isPresent()) {
-            Livro livro = livroOptional.get();
-            livro.setEditora(editoraOptional.get());
-            return Optional.of(livroRepository.save(livro));
-        }
-        return Optional.empty();
-    }
-
-    public Optional<Livro> associarAutor(UUID id, UUID idsAutor) {
-        Optional<Livro> livroOptional = livroRepository.findById(id);
-        Optional<Autor> autorOptional = autorService.obterAutor(idsAutor);
-
-        if (livroOptional.isPresent() && autorOptional.isPresent()) {
-            Livro livro = livroOptional.get();
-            livro.setAutor(autorOptional.get());
-            return Optional.of(livroRepository.save(livro));
-        }
-        return Optional.empty();
-    }  
 }
