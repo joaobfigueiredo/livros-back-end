@@ -1,4 +1,5 @@
 package br.com.joaofigueiredo.livros.controller;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -27,60 +28,48 @@ import io.swagger.v3.oas.annotations.Parameter;
 @RequestMapping("/api/autores")
 public class AutorController {
 
-    @Autowired
-    private AutorRepository autorRepository;
-    @Autowired
-    private AutorService autorService;
-    
+	@Autowired
+	private AutorRepository autorRepository;
+	@Autowired
+	private AutorService autorService;
 
-    @GetMapping
-    public List<Autor> listarAutores() {
-        return autorRepository.findAll();
-    }
+	@GetMapping
+	public List<Autor> listarAutores() {
+		return autorRepository.findAll();
+	}
 
-    @Operation(summary = "Busca um autor pelo ID", description = "Retorna um autor específico com base no ID fornecido.")
-    @GetMapping("/{id}")
-    public ResponseEntity<Autor> obterAutor(@Parameter(description = "ID do autor") @PathVariable UUID id) {
-        Optional<Autor> autor = autorRepository.findById(id);
-        return autor.map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
-    }
+	@Operation(summary = "Busca um autor pelo ID", description = "Retorna um autor específico com base no ID fornecido.")
+	@GetMapping("/{id}")
+	public ResponseEntity<Autor> obterAutor(@Parameter(description = "ID do autor") @PathVariable UUID id) {
+		Optional<Autor> autor = autorService.obterAutor(id);
+		return autor.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+	}
 
-    @PostMapping
-    public ResponseEntity<Autor> criarAutor(@RequestBody Autor autor) {
-        Autor novoAutor = autorRepository.save(autor);
-        return ResponseEntity.status(HttpStatus.CREATED).body(novoAutor);
-    }
+	@PostMapping
+	public ResponseEntity<Autor> criarAutor(@RequestBody Autor autor) {
+		Autor novoAutor = autorService.criarAutor(autor);
+		return ResponseEntity.status(HttpStatus.CREATED).body(novoAutor);
+	}
 
-    @PutMapping("/{id}")
-    public ResponseEntity<Autor> atualizarAutor(@PathVariable UUID id, @RequestBody Autor detalhesAutor) {
-        Optional<Autor> autorExistente = autorRepository.findById(id);
-        if (autorExistente.isPresent()) {
-            Autor autor = autorExistente.get();
-            autor.setNome(detalhesAutor.getNome());
-            autor.setBiografia(detalhesAutor.getBiografia());
-            autor.setNacionalidade(detalhesAutor.getNacionalidade());
-            Autor autorAtualizado = autorRepository.save(autor);
-            return ResponseEntity.ok(autorAtualizado);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
-    }
+	@PutMapping("/{id}")
+	public ResponseEntity<Autor> atualizarAutor(@PathVariable UUID id, @RequestBody Autor detalhesAutor) {
+		Optional<Autor> autorAtualizado = autorService.atualizarAutor(id, detalhesAutor);
+		return autorAtualizado.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+	}
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> excluirAutor(@PathVariable UUID id) {
-        if (autorRepository.existsById(id)) {
-            autorRepository.deleteById(id);
-            return ResponseEntity.noContent().build();
-        } else {
-            return ResponseEntity.notFound().build();
-        }
-    }
-    
-    @GetMapping("/livro/{idLivro}")
-    public ResponseEntity<List<Autor>> buscarAutoresPorLivro(@PathVariable UUID idLivro) {
-        List<Autor> autores = autorService.buscarAutoresPorLivro(idLivro);
-        return ResponseEntity.ok(autores);
-    }    
+	@DeleteMapping("/{id}")
+	public ResponseEntity<Void> excluirAutor(@PathVariable UUID id) {
+		boolean excluido = autorService.excluirAutor(id);
+		if (excluido) {
+			return ResponseEntity.noContent().build();
+		} else {
+			return ResponseEntity.notFound().build();
+		}
+	}
+
+	@GetMapping("/livro/{idLivro}")
+	public ResponseEntity<List<Autor>> buscarAutoresPorLivro(@PathVariable UUID idLivro) {
+		List<Autor> autores = autorService.buscarAutoresPorLivro(idLivro);
+		return ResponseEntity.ok(autores);
+	}
 }
-

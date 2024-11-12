@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.joaofigueiredo.livros.model.Editora;
-import br.com.joaofigueiredo.livros.repository.EditoraRepository;
+import br.com.joaofigueiredo.livros.service.EditoraService;
 
 @CrossOrigin(origins = "http://localhost:4200")
 @RestController
@@ -26,49 +26,41 @@ import br.com.joaofigueiredo.livros.repository.EditoraRepository;
 public class EditoraController {
 
     @Autowired
-    private EditoraRepository editoraRepository;
-
+    private EditoraService editoraService;
+    
     @GetMapping
     public List<Editora> listarEditoras() {
-        return editoraRepository.findAll();
+        return editoraService.listarEditoras();
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Editora> obterEditora(@PathVariable UUID id) {
-        Optional<Editora> editora = editoraRepository.findById(id);
+        Optional<Editora> editora = editoraService.obterEditora(id);
         return editora.map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PostMapping
     public ResponseEntity<Editora> criarEditora(@RequestBody Editora editora) {
-        Editora novaEditora = editoraRepository.save(editora);
+        Editora novaEditora = editoraService.criarEditora(editora);
         return ResponseEntity.status(HttpStatus.CREATED).body(novaEditora);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<Editora> atualizarEditora(@PathVariable UUID id, @RequestBody Editora detalhesEditora) {
-        Optional<Editora> editoraExistente = editoraRepository.findById(id);
-        if (editoraExistente.isPresent()) {
-            Editora editora = editoraExistente.get();
-            editora.setNome(detalhesEditora.getNome());
-            editora.setTelefone(detalhesEditora.getTelefone());
-            editora.setEmail(detalhesEditora.getEmail());
-            editora.setWebsite(detalhesEditora.getWebsite());
-            Editora editoraAtualizada = editoraRepository.save(editora);
-            return ResponseEntity.ok(editoraAtualizada);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
-    }
+	@PutMapping("/{id}")
+	public ResponseEntity<Editora> atualizarEditora(@PathVariable UUID id, @RequestBody Editora detalhesEditora) {
+		Optional<Editora> editoraAtualizada = editoraService.atualizarEditora(id, detalhesEditora);
+		return editoraAtualizada.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+	}
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> excluirEditora(@PathVariable UUID id) {
-        if (editoraRepository.existsById(id)) {
-            editoraRepository.deleteById(id);
+    	boolean excluido = editoraService.excluirEditora(id);
+        if (excluido) {
             return ResponseEntity.noContent().build();
         } else {
             return ResponseEntity.notFound().build();
         }
     }
+
+ 
 }
